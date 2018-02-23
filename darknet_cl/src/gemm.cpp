@@ -174,27 +174,22 @@ void gemm_gpu(int TA, int TB, int M, int N, int K, float ALPHA,
 	float BETA,
 	CLArray C_gpu, int ldc)
 {
-	//cl_int status = clblasSetup();
-	//check_error(status);
 	std::shared_ptr<CLWarpper> cl = getCLWarpper();
 	cl_event e;
 
-	clblasTranspose transA = (TA ? clblasTrans : clblasNoTrans);
-	clblasTranspose transB = (TB ? clblasTrans : clblasNoTrans);
+	clblast::Gemm(clblast::Layout::kRowMajor,
+                              TA ? clblast::Transpose::kYes : clblast::Transpose::kNo, 
+		              TB ? clblast::Transpose::kYes : clblast::Transpose::kNo,
+                              M, N, K,
+                              ALPHA,
+                              A_gpu.buffer, 0, lda,
+                              B_gpu.buffer, 0, ldb,
+                              BETA,
+                              C_gpu.buffer, 0, ldc,
+                              cl->queue, &e);
 
-	clblasSgemm(
-		clblasColumnMajor,//Make column major the same with cublasSgemm
-		transB, transA, N, M, K, ALPHA, B_gpu.buffer, 0, ldb, A_gpu.buffer, 0, lda, BETA,
-		C_gpu.buffer, 0, ldc,
-		1,//cl_uint numCommandQueues,
-		cl->queue,//cl_command_queue *commandQueues,
-		0,//cl_uint numEventsInWaitList,
-		NULL,//const cl_event *eventWaitList,
-		&e//cl_event *events
-	);
 	cl->checkError(clWaitForEvents(1, &e));
 	clReleaseEvent(e);
-	//clblasTeardown();
 }
 /*
 void gemm_gpu(int TA, int TB, int M, int N, int K, float ALPHA, 
