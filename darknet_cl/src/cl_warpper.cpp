@@ -9,7 +9,6 @@ CLWarpper::CLWarpper(int gpu) {
 	if (instance_count == 0)
 	{
 		instance_count++;
-		clblasSetup();
 	}
 }
 
@@ -18,7 +17,6 @@ CLWarpper::CLWarpper() {
 	if (instance_count == 0)
 	{
 		instance_count++;
-		clblasSetup();
 	}
 }
 
@@ -27,14 +25,11 @@ CLWarpper::CLWarpper(cl_platform_id platform_id, cl_device_id device) {
 	if (instance_count == 0)
 	{
 		instance_count++;
-		clblasSetup();
 	}
 }
 
 CLWarpper::~CLWarpper() {
 	instance_count--;
-	if (instance_count == 0)
-		clblasTeardown();
 	if (queue != 0) {
 		clReleaseCommandQueue(*queue);
 		delete queue;
